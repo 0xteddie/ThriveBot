@@ -1,3 +1,2 @@
 # ThriveBot
-
-Testing
+![My Excalidraw Diagram]("diagram-design.excalidraw")
