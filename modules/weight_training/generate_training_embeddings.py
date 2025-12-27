@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from weight_training import write_workout_set
+from workout_db_handler import write_workout_set, pull_set_info, add_exercise
 import asyncio
 from dotenv import load_dotenv
 import os
@@ -35,6 +35,11 @@ def build_embed(status: str) -> discord.Embed:
 class SetView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
+        # Member id stays the same across the board.
+        self.member_id = None
+        # Current set changes with button click
+        # Pull information from database using this current_set
+        self.current_set = None
 
     @discord.ui.button(label="▶️ Start", style=discord.ButtonStyle.primary, custom_id="set:start")
     async def start(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -44,10 +49,11 @@ class SetView(discord.ui.View):
 
         # show a confirmation popup with Yes/No (This is creating a new embed when it should just be updating it.)
         # I don't want a new embed to be created.
+        await pull_set_info() # This works
+        await add_exercise(workout_id=123, name="Deadlift", category="Back")
         await interaction.response.edit_message(
             embed=build_embed("Finished?"),
             view=ConfirmCompleteView(parent=self),
-            
         )
 
     # When click move onto the next set.
