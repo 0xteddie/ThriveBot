@@ -45,7 +45,32 @@ def new_plan_embed(data):
     if not data:
         return discord.Embed(title=embed_data['Title'], description="Create a new workout plan")
     else:
-        return discord.Embed(title=data)
+        embed = discord.Embed(
+            title=data["plan_name"],
+            color=0x3498DB
+        )
+
+        lines = []
+        lines.append("#  Exercise      Sets  Reps")
+        lines.append("──────────────────────────")
+
+        for exercise_index, exercise_data in enumerate(data["data"], start=1):
+            exercise_name = exercise_data["exercise_name"]
+            sets_count = exercise_data["sets_count"]
+            reps_count = exercise_data["reps_count"]
+
+            table_row = (
+                f"{exercise_index:<2} "
+                f"{exercise_name:<13} "
+                f"{sets_count:<5} "
+                f"{reps_count}"
+            )
+
+            lines.append(table_row)
+
+        embed.description = "```text\n" + "\n".join(lines) + "\n```"
+        return embed
+
 
 EMBEDS = {
     "home": home_embed,
