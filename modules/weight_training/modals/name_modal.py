@@ -15,6 +15,7 @@ class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
     async def on_submit(self, interaction: discord.Interaction):
         # store input (perform validation)
         self.data["plan_name"] = self.plan_name.value
+        self.data["data"] = []
 
         # transition state
         from ui.render import render
@@ -39,16 +40,15 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
     def __init__(self, data):
         super().__init__()
         self.data = data
+        self.details = {}
 
-    # Return in a dict? 
     async def on_submit(self, interaction: discord.Interaction):
-        # Used this structure for back-end writing.
-        # data = []
-        # I will also need the work_out_plan id for this structure.
-        # {"exercise_name": name, "sets": sets, "reps": reps, "id": exercise_id}
-        self.data["exercise_name"] = self.exercise_name.value
-        self.data["sets_count"] = self.sets_count.value
-        self.data["reps_count"] = self.reps_count.value
+        self.details["exercise_name"] = self.exercise_name.value
+        self.details["sets_count"] = self.sets_count.value
+        self.details["reps_count"] = self.reps_count.value
+        
+        print(self.data['data'].append(self.details))
+        print(self.data)
 
         # Send the info back to the embed with the new data
         from ui.render import render
