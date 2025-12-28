@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Optional: other common Python ignores
+env/
+.venv/
+venv/
+pip-wheel-metadata/
+build/
+dist/
