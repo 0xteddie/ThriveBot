@@ -59,8 +59,14 @@ class NewPlanView(discord.ui.View):
     async def new_plan(self, interaction, button):
         from modals.name_modal import PlanDetails
         await interaction.response.send_modal(PlanDetails(self.data))
+    
+    @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾")
+    async def save_plan(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # (swap this to a save action)
+        from ui.render import render  # ✅ local import
+        await render(interaction, "home", self.data)
 
-    @discord.ui.button(label="Back", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="⛔")
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.data)
