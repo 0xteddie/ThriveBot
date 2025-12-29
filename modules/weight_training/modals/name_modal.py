@@ -47,7 +47,8 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         self.details["sets_count"] = self.sets_count.value
         self.details["reps_count"] = self.reps_count.value
         
-        print(self.data['data'].append(self.details))
+        # Add into list
+        self.data['data'].append(self.details)
         print(self.data)
 
         # Send the info back to the embed with the new data
