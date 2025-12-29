@@ -1,5 +1,6 @@
 # views/workout_view.py
 import discord
+from modals.interaction_menu import ExerciseSelect
 
 # ---------- HOME ----------
 class HomeView(discord.ui.View):
@@ -36,6 +37,7 @@ class StartView(discord.ui.View):
         await render(interaction, "home", self.data)
 
 # ---------- ADJUST ----------
+# Adjust a plan from the "home" screen.
 class AdjustView(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=None)
@@ -60,13 +62,39 @@ class NewPlanView(discord.ui.View):
         from modals.name_modal import PlanDetails
         await interaction.response.send_modal(PlanDetails(self.data))
     
-    @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾")
+    @discord.ui.button(label="Edit", style=discord.ButtonStyle.success, emoji="📝")
     async def save_plan(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # (swap this to a save action)
         from ui.render import render  # ✅ local import
-        await render(interaction, "home", self.data)
+        # (swap this to a save action)
+        await render(interaction, "edit_plan", self.data)
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="⛔")
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.data)
+
+# Edit plan
+class EditExerciseView(discord.ui.View):
+    def __init__(self, data):
+        super().__init__(timeout=None)
+        self.data = data
+
+        # Show drop down menu (Return data)
+        self.add_item(ExerciseSelect(self.data, row=0))
+
+    @discord.ui.button(label="Edit exercise", style=discord.ButtonStyle.blurple, emoji="📝", row=1)
+    async def edit_exercise(self, interaction, button):
+        from ui.render import render
+        await render(interaction, "edit_plan", self.data)
+
+    # Delete exercise from self.data list
+    @discord.ui.button(label="Delete exercise", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
+    async def delete_exercise(self, interaction, button):
+        from ui.render import render
+        await render(interaction, "edit_plan", self.data)
+
+    # Return to NewPlanView and show updated list.
+    @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾", row=1)
+    async def back(self, interaction, button):
+        from ui.render import render
+        await render(interaction, "edit_plan", self.data)
