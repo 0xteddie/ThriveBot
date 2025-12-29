@@ -1,6 +1,7 @@
 # ui/presets.py
 import discord
 from views.buttons_presets import HomeView, StartView, NewPlanView, AdjustView
+from views.buttons_presets import EditExerciseView
 
 # --------------- Home embed --------------------------------------- #
 def home_embed(data):
@@ -27,14 +28,17 @@ def home_embed(data):
 
     embed.set_footer(text="Workout Bot • Train smarter")
     return embed
+
 # ----------------------------------------------------------- #
 def start_embed(data):
     # Show a list of workouts the user currenlty has
     return discord.Embed(title="▶️ START PLAN", description="Ready to begin?")
 
+# ----------------------------------------------------------- #
 def adjust_embed(data):
     return discord.Embed(title="✏️ ADJUST PLAN", description="Modify an existing plan")
 
+# ----------------------------------------------------------- #
 def new_plan_embed(data):
     # Should contain the data and values being returned by the user.
     embed_data = {
@@ -71,18 +75,20 @@ def new_plan_embed(data):
         embed.description = "```text\n" + "\n".join(lines) + "\n```"
         return embed
 
-
+# EMBEDS
 EMBEDS = {
     "home": home_embed,
     "start": start_embed,
     "new_plan": new_plan_embed,
+    "edit_plan": new_plan_embed,
     "adjust": adjust_embed,
 }
 
-# Views also known as buttons.
+# BUTTONS.
 VIEWS = {
     "home": HomeView,
     "start": StartView,
     "new_plan": NewPlanView,
+    "edit_plan": EditExerciseView,
     "adjust": AdjustView,
 }
