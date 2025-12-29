@@ -1,13 +1,18 @@
 import discord
 
 class ExerciseSelect(discord.ui.Select):
+    # Eneumerate over the data here.
     def __init__(self, data, row=0):
         self.data = data
+
         options = [
-            discord.SelectOption(label="Option 1", value="1"),
-            discord.SelectOption(label="Option 2", value="2"),
-            discord.SelectOption(label="Option 3", value="3"),
+            discord.SelectOption(
+                label=exercise["exercise_name"],
+                value=str(index)
+            )
+            for index, exercise in enumerate(data["data"])
         ]
+
         super().__init__(
             placeholder="Choose…",
             options=options,
