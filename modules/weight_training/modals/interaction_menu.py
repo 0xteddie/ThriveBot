@@ -5,13 +5,14 @@ class ExerciseSelect(discord.ui.Select):
     def __init__(self, data, row=0):
         self.data = data
 
-        options = [
-            discord.SelectOption(
+        options = []
+
+        for index, exercise in enumerate(data["data"]):
+            option = discord.SelectOption(
                 label=exercise["exercise_name"],
                 value=str(index)
             )
-            for index, exercise in enumerate(data["data"])
-        ]
+            options.append(option)
 
         super().__init__(
             placeholder="Choose…",
@@ -20,3 +21,26 @@ class ExerciseSelect(discord.ui.Select):
             max_values=1,
             row=row
         )
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        # Parsing the interaction payload - sent by discord.
+        selected_index = int(self.values[0])
+        chosen = self.data["data"][selected_index]
+
+        # Edit the selector messsage
+        await interaction.followup.send(
+            f"Selected: **{chosen['exercise_name']}**",
+            ephemeral=True
+        )
+        
+        from views.buttons_presets import EditExerciseView
+
+        self.data['index_selected_value'] = selected_index
+
+        await interaction.response.edit_message(
+            EditExerciseView(self.data)
+        )
+
+
