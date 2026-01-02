@@ -81,16 +81,17 @@ class EditExerciseView(discord.ui.View):
 
         # Show drop down menu (Return data)
         self.add_item(ExerciseSelect(self.data, row=0))
-
+        
     @discord.ui.button(label="Edit exercise", style=discord.ButtonStyle.blurple, emoji="📝", row=1)
     async def edit_exercise(self, interaction, button):
-        from ui.render import render
-        await render(interaction, "edit_plan", self.data)
+        from modals.name_modal import EditExerciseDetails
+        await interaction.response.send_modal(EditExerciseDetails(self.data))
 
     # Delete exercise from self.data list
     @discord.ui.button(label="Delete exercise", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
     async def delete_exercise(self, interaction, button):
         from ui.render import render
+        print("Deleting key from list")
         await render(interaction, "edit_plan", self.data)
 
     # Return to NewPlanView and show updated list.
