@@ -34,13 +34,3 @@ class ExerciseSelect(discord.ui.Select):
             f"Selected: **{chosen['exercise_name']}**",
             ephemeral=True
         )
-        
-        from views.buttons_presets import EditExerciseView
-
-        self.data['index_selected_value'] = selected_index
-
-        await interaction.response.edit_message(
-            EditExerciseView(self.data)
-        )
-
-
