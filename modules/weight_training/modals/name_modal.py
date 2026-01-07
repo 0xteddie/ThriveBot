@@ -92,4 +92,14 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
         self.exercise_name.default = str(exercise.get("exercise_name", ""))
         self.sets_count.default = str(exercise.get("sets_count", ""))
         self.reps_count.default = str(exercise.get("reps_count", ""))
-    
+
+    async def on_submit(self, interaction: discord.Interaction):
+        edit_index = self.data["index_selected_value"]
+        exercise = self.data["data"][edit_index]
+
+        exercise["exercise_name"] = self.exercise_name.value
+        exercise["sets_count"] = self.sets_count.value
+        exercise["reps_count"] = self.reps_count.value
+        
+        from ui.render import render
+        await render(interaction, "new_plan", self.data)
