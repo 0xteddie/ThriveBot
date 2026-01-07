@@ -28,9 +28,3 @@ class ExerciseSelect(discord.ui.Select):
         # Parsing the interaction payload - sent by discord.
         selected_index = int(self.values[0])
         chosen = self.data["data"][selected_index]
-
-        # Edit the selector messsage
-        await interaction.followup.send(
-            f"Selected: **{chosen['exercise_name']}**",
-            ephemeral=True
-        )
