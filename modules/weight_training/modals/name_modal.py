@@ -66,6 +66,14 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         await render(interaction, "new_plan", self.data)
 
 class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
+    """
+    Handles exercise edit submission.
+
+    Updates the selected exercise entry in the existing plan data structure
+    and re-renders the plan view with the modified values.
+    
+    """
+
     exercise_name = discord.ui.TextInput(
         label="Exercise Name: ",
         placeholder="e.g. Pull up, Push ups",
