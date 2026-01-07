@@ -78,7 +78,6 @@ class EditExerciseView(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=None)
         self.data = data
-
         # Show drop down menu (Return data)
         self.add_item(ExerciseSelect(self.data, row=0))
         
@@ -91,7 +90,10 @@ class EditExerciseView(discord.ui.View):
     @discord.ui.button(label="Delete exercise", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
     async def delete_exercise(self, interaction, button):
         from ui.render import render
-        print("Deleting key from list")
+        
+        # Delete item based on selected value.
+        selected_index = self.data["index_selected_value"]
+        self.data["data"].pop(selected_index)        
         await render(interaction, "edit_plan", self.data)
 
     # Return to NewPlanView and show updated list.
