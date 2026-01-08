@@ -90,11 +90,13 @@ class EditExerciseView(discord.ui.View):
     @discord.ui.button(label="Delete exercise", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
     async def delete_exercise(self, interaction, button):
         from ui.render import render
-        
-        # Delete item based on selected value.
-        selected_index = self.data["index_selected_value"]
-        self.data["data"].pop(selected_index)        
-        await render(interaction, "edit_plan", self.data)
+        try:
+            selected_index = self.data["index_selected_value"]
+            self.data["data"].pop(selected_index)
+            await render(interaction, "edit_plan", self.data)
+        except discord.errors.HTTPException:
+            self.data["index_selected_value"] = None
+            await render(interaction, "new_plan", self.data)
 
     # Return to NewPlanView and show updated list.
     @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾", row=1)
