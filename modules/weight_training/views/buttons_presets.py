@@ -56,20 +56,23 @@ class NewPlanView(discord.ui.View):
         # This is storing the data in a object state or instance
         self.data = data
 
+        # Disable edit button until there is data to edit.
+        self.edit_button.disabled = not bool(self.data["data"])
+
     # This button should change once it's completed
     @discord.ui.button(label="Add Exercise", style=discord.ButtonStyle.blurple, emoji="💪")
-    async def new_plan(self, interaction, button):
+    async def new_exercise_button(self, interaction, button):
         from modals.name_modal import PlanDetails
         await interaction.response.send_modal(PlanDetails(self.data))
     
+    # Disable this button if self.data['data'] contains zero data.
     @discord.ui.button(label="Edit", style=discord.ButtonStyle.success, emoji="📝")
-    async def save_plan(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def edit_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         from ui.render import render  # ✅ local import
-        # (swap this to a save action)
         await render(interaction, "edit_plan", self.data)
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="⛔")
-    async def back(self, interaction, button):
+    async def cancel_button(self, interaction, button):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.data)
 
@@ -80,7 +83,7 @@ class EditExerciseView(discord.ui.View):
         self.data = data
         # Show drop down menu (Return data)
         self.add_item(ExerciseSelect(self.data, row=0))
-        
+
     @discord.ui.button(label="Edit exercise", style=discord.ButtonStyle.blurple, emoji="📝", row=1)
     async def edit_exercise(self, interaction, button):
         from modals.name_modal import EditExerciseDetails
@@ -89,7 +92,7 @@ class EditExerciseView(discord.ui.View):
     # Delete exercise from self.data list
     @discord.ui.button(label="Delete exercise", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
     async def delete_exercise(self, interaction, button):
-        from ui.render import render
+        from ui.render import render    
         try:
             selected_index = self.data["index_selected_value"]
             self.data["data"].pop(selected_index)
@@ -99,7 +102,7 @@ class EditExerciseView(discord.ui.View):
             await render(interaction, "new_plan", self.data)
 
     # Return to NewPlanView and show updated list.
-    @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾", row=1)
+    @discord.ui.button(label="Return", style=discord.ButtonStyle.success, emoji="↩️", row=1)
     async def back(self, interaction, button):
         from ui.render import render
-        await render(interaction, "edit_plan", self.data)
+        await render(interaction, "new_plan", self.data)
