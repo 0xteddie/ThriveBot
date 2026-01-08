@@ -110,4 +110,4 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
         exercise["reps_count"] = self.reps_count.value
         
         from ui.render import render
-        await render(interaction, "new_plan", self.data)
+        await render(interaction, "edit_plan", self.data)
