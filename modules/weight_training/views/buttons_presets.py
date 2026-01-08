@@ -48,7 +48,6 @@ class AdjustView(discord.ui.View):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.data)
 
-
 # ---------- NEW PLAN ----------
 class NewPlanView(discord.ui.View):
     def __init__(self, data):
@@ -71,12 +70,13 @@ class NewPlanView(discord.ui.View):
         from ui.render import render  # ✅ local import
         await render(interaction, "edit_plan", self.data)
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="⛔")
+    # Cancel
+    @discord.ui.button(label="Exit", style=discord.ButtonStyle.danger, emoji="⛔")
     async def cancel_button(self, interaction, button):
-        from ui.render import render  # ✅ local import
-        await render(interaction, "home", self.data)
+        from ui.render import render
+        await render(interaction, "exit_plan", self.data)
 
-# Edit plan
+# ---------- EDIT EXERCISE ----------
 class EditExerciseView(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=None)
@@ -102,7 +102,28 @@ class EditExerciseView(discord.ui.View):
             await render(interaction, "new_plan", self.data)
 
     # Return to NewPlanView and show updated list.
-    @discord.ui.button(label="Return", style=discord.ButtonStyle.success, emoji="↩️", row=1)
+    @discord.ui.button(label="Return", style=discord.ButtonStyle.secondary, emoji="↩️", row=1)
     async def back(self, interaction, button):
+        from ui.render import render
+        await render(interaction, "new_plan", self.data)
+
+# ---------- EXIT PLAN VIEW ----------
+class ExitPlanView(discord.ui.View):
+    def __init__(self, data):
+        super().__init__(timeout=None)
+        self.data = data
+
+    @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾", row=1)
+    async def save_plan(self, interaction: discord.Interaction, button: discord.ui.Button):
+        from ui.render import render
+        await render(interaction, "new_plan", self.data)
+
+    @discord.ui.button(label="Discard", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
+    async def discard_changes(self, interaction: discord.Interaction, button: discord.ui.Button):
+        from ui.render import render
+        await render(interaction, "new_plan", self.data)
+
+    @discord.ui.button(label="Return", style=discord.ButtonStyle.secondary, emoji="↩️", row=1)
+    async def return_back(self, interaction: discord.Interaction, button: discord.ui.Button):
         from ui.render import render
         await render(interaction, "new_plan", self.data)
