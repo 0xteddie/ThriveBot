@@ -1,7 +1,7 @@
 # ui/presets.py
 import discord
 from views.buttons_presets import HomeView, StartView, NewPlanView, AdjustView
-from views.buttons_presets import EditExerciseView
+from views.buttons_presets import EditExerciseView, ExitPlanView
 
 # --------------- Home embed --------------------------------------- #
 def home_embed(data):
@@ -81,6 +81,7 @@ EMBEDS = {
     "start": start_embed,
     "new_plan": new_plan_embed,
     "edit_plan": new_plan_embed,
+    "exit_plan": new_plan_embed,
     "adjust": adjust_embed,
 }
 
@@ -90,5 +91,6 @@ VIEWS = {
     "start": StartView,
     "new_plan": NewPlanView,
     "edit_plan": EditExerciseView,
+    "exit_plan": ExitPlanView,
     "adjust": AdjustView,
 }
