@@ -34,6 +34,62 @@ def start_embed(data):
     # Show a list of workouts the user currenlty has
     return discord.Embed(title="▶️ START PLAN", description="Ready to begin?")
 
+# ---------------Existing plan--------------------------------------------#
+def workout_plans_list_embed(data):
+        """
+    Builds and returns a Discord embed displaying a fixed-width list of
+    the user's saved workout plans.
+    """
+    embed_data = {
+        "description": "Your saved workout plans",
+        "title": "📋 EXISTING PLANS"
+    }
+
+    # Empty state
+    if not data or not data.get("plans"):
+        return discord.Embed(
+            title=embed_data["title"],
+            description="No workout plans found."
+        )
+
+    embed = discord.Embed(
+        title=embed_data["title"],
+        color=0x5865F2
+    )
+
+    # Column widths
+    PLAN_WIDTH  = 14
+    SPLIT_WIDTH = 10
+    EX_WIDTH    = 3
+    FOCUS_WIDTH = 12
+
+    def format_cell(value, width):
+        text = str(value)
+        return text[:width].ljust(width)
+
+    lines = []
+    lines.append(
+        "#  "
+        f"{'Plan Name'.ljust(PLAN_WIDTH)} "
+        f"{'Split'.ljust(SPLIT_WIDTH)} "
+        f"{'Ex'.ljust(EX_WIDTH)} "
+        f"{'Focus'.ljust(FOCUS_WIDTH)}"
+    )
+    lines.append("────────────────────────────────────────")
+
+    for plan_index, plan in enumerate(data["plans"], start=1):
+        row = (
+            f"{plan_index:<2} "
+            f"{format_cell(plan['name'], PLAN_WIDTH)} "
+            f"{format_cell(plan['split'], SPLIT_WIDTH)} "
+            f"{str(plan['ex']).ljust(EX_WIDTH)} "
+            f"{format_cell(plan['focus'], FOCUS_WIDTH)}"
+        )
+        lines.append(row)
+
+    embed.description = "```text\n" + "\n".join(lines) + "\n```"
+    return embed
+
 # ----------------------------------------------------------- #
 def adjust_embed(data):
     return discord.Embed(title="✏️ ADJUST PLAN", description="Modify an existing plan")
@@ -78,7 +134,7 @@ def new_plan_embed(data):
 # EMBEDS
 EMBEDS = {
     "home": home_embed,
-    "start": start_embed,
+    "start": workout_plans_list_embed,
     "new_plan": new_plan_embed,
     "edit_plan": new_plan_embed,
     "exit_plan": new_plan_embed,
