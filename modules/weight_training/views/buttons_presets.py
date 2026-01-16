@@ -42,20 +42,18 @@ class StartWorkOutView(discord.ui.View):
     def __init__(self, client_plan_collection):
         super().__init__(timeout=None)
         self.client_plan_collection = client_plan_collection
-        
-        # Should show selector icon here
+        # Selector input box
         self.add_item(WorkOutPlan(self.client_plan_collection))
 
-    @discord.ui.button(label="🏋️ Start workout", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="🏋️ Start workout", style=discord.ButtonStyle.green, row=1)
     async def start_workout(self, interaction, button):
         from ui.render import render  # local import
         await render(interaction, "start", self.client_plan_collection)
     
-    @discord.ui.button(label="Back", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="Back", style=discord.ButtonStyle.secondary, row=1)
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.client_plan_collection)
-
 
 # ---------- Current workout in session view----------
 class WorkoutSessionView(discord.ui.View):
@@ -65,7 +63,6 @@ class WorkoutSessionView(discord.ui.View):
     def main(self):
         print("working")
     
-
 # ---------- ADJUST ----------
 # Adjust a plan from the "home" screen.
 class AdjustView(discord.ui.View):
