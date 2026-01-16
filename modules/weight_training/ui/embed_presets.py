@@ -36,9 +36,9 @@ def start_embed(data):
 
 # ---------------Existing plan--------------------------------------------#
 def workout_plans_list_embed(data):
-        """
-    Builds and returns a Discord embed displaying a fixed-width list of
-    the user's saved workout plans.
+    """
+        Builds and returns a Discord embed displaying a fixed-width list of
+        the user's saved workout plans.
     """
     embed_data = {
         "description": "Your saved workout plans",
