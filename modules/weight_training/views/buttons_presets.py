@@ -1,21 +1,32 @@
 # views/workout_view.py
 import discord
 from modals.interaction_menu import ExerciseSelect
+from modals.interaction_menu import WorkOutPlan
+from controllers.user_controller import fetch_client_data_plans
 
 # ---------- HOME ----------
 class HomeView(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=None)
         self.data = data
-
+        self.client_plan_collection: dict | None = None
+    
     @discord.ui.button(label="🏋️ Start Plan", style=discord.ButtonStyle.green)
     async def start(self, interaction, button):
-        from ui.render import render  # ✅ local import
-        await render(interaction, "start", self.data)
+        from ui.render import render  # local import
+        
+        self.client_plan_collection = await fetch_client_data_plans()
+
+        # Disable button if no data is found.
+        if not self.client_plan_collection or not self.client_plan_collection.get("plans"):
+            button.disabled = True
+            await interaction.response.edit_message(view=self)
+            return
+        
+        await render(interaction, "start", self.client_plan_collection)
 
     @discord.ui.button(label="➕ New Plan", style=discord.ButtonStyle.blurple)
     async def new_plan(self, interaction, button):
-        # This needs to be changed with NameplanModal instead of what it is right now 
         from modals.name_modal import NamePlanModal
         await interaction.response.send_modal(NamePlanModal(self.data))
 
@@ -24,17 +35,21 @@ class HomeView(discord.ui.View):
         from ui.render import render  # ✅ local import
         await render(interaction, "adjust", self.data)
 
-
-# ---------- START ----------
 class StartView(discord.ui.View):
-    def __init__(self, data):
+    def __init__(self, client_plan_collection):
         super().__init__(timeout=None)
-        self.data = data
+        self.client_plan_collection: dict | None = None
+        self.add_item(WorkOutPlan())  # buttons can be added immediately
+
+    @discord.ui.button(label="🏋️ Start workout", style=discord.ButtonStyle.green)
+    async def start_workout(self, interaction, button):
+        from ui.render import render  # local import
+        await render(interaction, "start", self.client_plan_collection)
     
     @discord.ui.button(label="Back", style=discord.ButtonStyle.secondary)
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
-        await render(interaction, "home", self.data)
+        await render(interaction, "home", self.client_plan_collection)
 
 # ---------- ADJUST ----------
 # Adjust a plan from the "home" screen.
