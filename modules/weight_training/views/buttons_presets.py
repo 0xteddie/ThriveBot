@@ -45,12 +45,22 @@ class StartWorkOutView(discord.ui.View):
         # Selector input box
         self.add_item(WorkOutPlan(self.client_plan_collection))
 
-    @discord.ui.button(label="🏋️ Start workout", style=discord.ButtonStyle.green, row=1)
+    @discord.ui.button(label="Start", style=discord.ButtonStyle.green, emoji="🏋️", row=1)
     async def start_workout(self, interaction, button):
         from ui.render import render  # local import
         await render(interaction, "start", self.client_plan_collection)
     
-    @discord.ui.button(label="Back", style=discord.ButtonStyle.secondary, row=1)
+    @discord.ui.button(label="Next", style=discord.ButtonStyle.blurple, emoji="▶", row=1)
+    async def next(self, interaction, button):
+        from ui.render import render  # ✅ local import
+        await render(interaction, "home", self.client_plan_collection)
+
+    @discord.ui.button(label="Prev", style=discord.ButtonStyle.blurple, emoji="◀", row=1)
+    async def prev(self, interaction, button):
+        from ui.render import render  # ✅ local import
+        await render(interaction, "home", self.client_plan_collection)
+
+    @discord.ui.button(label="Home", style=discord.ButtonStyle.red, emoji="🔃", row=1)
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
         await render(interaction, "home", self.client_plan_collection)
