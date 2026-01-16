@@ -43,8 +43,7 @@ class StartWorkOutView(discord.ui.View):
         # Selector input box
         self.add_item(WorkOutPlan(self.client_plan_collection))
         
-        # With each button click iterate and save the new value but max it out to the total number of chunks that we have
-        self.client_plan_collection["button_click_count"] = 0
+        # With each button click iterate and save the new value 
         self.button_click_count = 0
         
     @discord.ui.button(label="Start", style=discord.ButtonStyle.green, emoji="🏋️", row=1)
@@ -56,17 +55,25 @@ class StartWorkOutView(discord.ui.View):
     @discord.ui.button(label="Next", style=discord.ButtonStyle.blurple, emoji="▶", row=1)
     async def next(self, interaction, button):
         from ui.render import render  # ✅ local import
-        # Don't let the number go above the amount of plans chunks we have.
-        self.button_click_count = max(len(self.client_plan_collection["plans"]), self.button_click_count + 1)
+        
+        # Don't let the button click value go above the amount of chunks we have.
+        total_workout_plans = len(self.client_plan_collection["plans"])
+
+        self.button_click_count = min(total_workout_plans, self.button_click_count + 1)
+
         self.client_plan_collection["button_click_count"] = self.button_click_count
+
         await render(interaction, "start", self.client_plan_collection)
 
     @discord.ui.button(label="Prev", style=discord.ButtonStyle.blurple, emoji="◀", row=1)
     async def prev(self, interaction, button):
         from ui.render import render  # ✅ local import
-        # Don't let the number go into negatives
+        
+        # Don't let the number go into negative
         self.button_click_count = max(0, self.button_click_count - 1)
+        
         self.client_plan_collection["button_click_count"] = self.button_click_count
+       
         await render(interaction, "start", self.client_plan_collection)
 
     @discord.ui.button(label="Home", style=discord.ButtonStyle.red, emoji="🔃", row=1)
