@@ -1,6 +1,6 @@
 # ui/presets.py
 import discord
-from views.buttons_presets import HomeView, StartView, NewPlanView, AdjustView
+from views.buttons_presets import HomeView, StartWorkOutView, NewPlanView, AdjustView
 from views.buttons_presets import EditExerciseView, ExitPlanView
 
 # --------------- Home embed --------------------------------------- #
@@ -144,7 +144,7 @@ EMBEDS = {
 # BUTTONS.
 VIEWS = {
     "home": HomeView,
-    "start": StartView,
+    "start": StartWorkOutView,
     "new_plan": NewPlanView,
     "edit_plan": EditExerciseView,
     "exit_plan": ExitPlanView,
