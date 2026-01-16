@@ -77,7 +77,9 @@ def workout_plans_list_embed(data):
     )
     lines.append("────────────────────────────────────────")
 
-    for plan_index, plan in enumerate(data["plans"], start=1):
+    # Button click value will be sent here in data["plans"][button_clic_value].
+    current_plan_view = data["button_click_count"]
+    for plan_index, plan in enumerate(data["plans"][current_plan_view], start=1):
         row = (
             f"{plan_index:<2} "
             f"{format_cell(plan['name'], PLAN_WIDTH)} "
