@@ -35,7 +35,8 @@ class WorkOutPlan(discord.ui.Select):
     
         options = []
         # Maximize at 5 total rows
-        for index, workout_plan_name in enumerate(client_plan_collection["plans"]):
+        current_plan_view = client_plan_collection["button_click_count"]
+        for index, workout_plan_name in enumerate(client_plan_collection["plans"][current_plan_view]):
             option = discord.SelectOption(
                 label=workout_plan_name["name"],
                 value=str(index)
@@ -55,4 +56,7 @@ class WorkOutPlan(discord.ui.Select):
 
         # Parsing the interaction payload - sent by discord.
         selected_index = int(self.values[0])
-        chosen = self.client_plan_collection["plans"][selected_index]
+        
+        current_plan_view = self.client_plan_collection["button_click_count"]
+        # This will have to also contain the buttun click count value
+        chosen = self.client_plan_collection["plans"][current_plan_view][selected_index]
