@@ -30,17 +30,18 @@ class ExerciseSelect(discord.ui.Select):
         chosen = self.data["data"][selected_index]
 
 class WorkOutPlan(discord.ui.Select):
-    def __init__(self, row=1):
-        options = [
-            discord.SelectOption(
-                label="Select 1",
-                value="select_1"
-            ),
-            discord.SelectOption(
-                label="Select 2",
-                value="select_2"
+    def __init__(self, client_plan_collection, row=1):
+        self.client_plan_collection = client_plan_collection
+    
+        options = []
+        # Maximize at 5 total rows
+        for index, workout_plan_name in enumerate(client_plan_collection["plans"]):
+            option = discord.SelectOption(
+                label=workout_plan_name["name"],
+                value=str(index)
             )
-        ]
+            
+            options.append(option)
 
         super().__init__(
             placeholder="Choose…",
@@ -49,3 +50,9 @@ class WorkOutPlan(discord.ui.Select):
             max_values=1,
             row=row
         )
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        # Parsing the interaction payload - sent by discord.
+        selected_index = int(self.values[0])
+        chosen = self.workout_plan_name["plans"][selected_index]
