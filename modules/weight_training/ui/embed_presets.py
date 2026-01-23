@@ -32,59 +32,59 @@ def home_embed(data):
 
 # -----------------------------MOCK UP------------------------------ #
 def start_workout_session(data):
+    # Data remains the same
     data = {
         "exercise_name": "Tricep Pushdowns",
         "sets": [
             {"weight": 70, "reps": 12, "rpe": 6},
             {"weight": 100, "reps": 8, "rpe": 7},
             {"weight": 60, "reps": 14, "rpe": 8}
-        ]
+        ],
+        "current_set": 1
     }
 
     exercise_name = data.get("exercise_name", "Unknown Exercise")
     sets = data.get("sets", [])
-
-    # Capture current date/time
     now = datetime.datetime.utcnow()
-    formatted_time = now.strftime("%m/%d/%y %I:%M %p")
+    formatted_time = now.strftime("%b %d | %I:%M %p")
 
-    # Determine max widths for alignment
-    col_set_width = max(len(str(len(sets))), 3)
-    col_reps_width = max(max(len(str(s['reps'])) for s in sets), 4)
-    col_weight_width = max(max(len(str(s['weight']) + " lbs") for s in sets), 6)
-    col_rpe_width = max(max(len(str(s['rpe'])) for s in sets), 3)
+    # Tighter widths for mobile (iPhone)
+    # Total width target: ~32 characters
+    S_W = 3   # Set
+    R_W = 4   # Reps
+    W_W = 9   # Weight (e.g., "100 lbs")
+    E_W = 3   # RPE
+    GAP = " " # Single space gap
 
-    # Build header
-    header = f"{'Set':<{col_set_width}}  X  {'Reps':<{col_reps_width}}  {'Weight':<{col_weight_width}}  {'RPE':<{col_rpe_width}}"
-    separator = "─" * len(header)
+    # Build header: "  #   Reps  Weight    RPE"
+    header = f"  {'#':<{S_W}}{GAP}{'Reps':<{R_W}}{GAP}{'Weight':<{W_W}}{GAP}{'RPE'}"
+    separator = "─" * 28 # Shorter separator
 
-    # Build rows
     rows = ""
     for i, s in enumerate(sets, start=1):
-        weight_str = f"{s['weight']} lbs"
-        rows += f"{i:<{col_set_width}}  X  {s['reps']:<{col_reps_width}}  {weight_str:<{col_weight_width}}  {s['rpe']:<{col_rpe_width}}\n"
+        arrow = "→" if i == data["current_set"] else " "
+        w_str = f"{s['weight']}lbs"
+        
+        # Row format: "→ 1   12    100lbs    6"
+        rows += (
+            f"{arrow} {i:<{S_W}}{GAP}"
+            f"{s['reps']:<{R_W}}{GAP}"
+            f"{w_str:<{W_W}}{GAP}"
+            f"{s['rpe']}\n"
+        )
 
-    # Build summary for the bottom of the code block
-    Date = f"{formatted_time}"
-
-    Total_sets = f"Total Sets: {len(sets)}"
+    footer = f"{formatted_time}\nTotal Sets: {len(sets)}\nTip: Focus on full ROM"
+    table = f"{header}\n{separator}\n{rows}{separator}\n{footer}"
     
-    tip = "Tip: Focus on full range of motion"
-
-    table = f"{header}\n{separator}\n{rows}{separator}\n{Date}\n{Total_sets}\n{tip}"
-
-    # Wrap in code block
+    # Using a code block is good, but keep it lean
     code_block = f"```\n{table}\n```"
 
-    # Create embed
+    import discord # Assuming discord.py/disnake/nextcord
     embed = discord.Embed(
         title=f"📝 {exercise_name}",
         description=code_block,
         color=0x3498DB
     )
-
-    # Thumbnail (replace with actual image URL)
-    embed.set_thumbnail(url="https://i.shgcdn.com/c39f9e9e-8e0a-4fa9-9ead-7ab7c3415c9d/-/format/auto/-/preview/3000x3000/-/quality/lighter/")
 
     return embed
 
