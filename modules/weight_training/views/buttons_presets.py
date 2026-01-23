@@ -45,18 +45,17 @@ class StartWorkOutView(discord.ui.View):
         
         # With each button click iterate and save the new value 
         self.button_click_count = 0
-        
+
     @discord.ui.button(label="Start", style=discord.ButtonStyle.green, emoji="🏋️", row=1)
     async def start_workout(self, interaction, button):
         from ui.render import render  # local import
-        await render(interaction, "start", self.client_plan_collection)
+        await render(interaction, "start_workout", self.client_plan_collection)
     
     #  TRACK THE BUTTON CLICK AND STATUS
     @discord.ui.button(label="Next", style=discord.ButtonStyle.blurple, emoji="▶", row=1)
     async def next(self, interaction, button):
         from ui.render import render  # ✅ local import
         
-        # Don't let the button click value go above the amount of chunks we have.
         total_workout_plans = len(self.client_plan_collection["plans"])
 
         self.button_click_count = min(total_workout_plans, self.button_click_count + 1)
@@ -82,12 +81,43 @@ class StartWorkOutView(discord.ui.View):
         await render(interaction, "home", self.client_plan_collection)
 
 # ---------- Current workout in session view----------
+
 class WorkoutSessionView(discord.ui.View):
     def __init__(self, client_plan_collection):
         super().__init__(timeout=None)
-    
-    def main(self):
-        print("working")
+        self.client_plan_collection = client_plan_collection
+        self.current_set_index = 0
+        self.completed_sets = set()
+
+    # ----------------- BUTTONS -----------------
+    @discord.ui.button(label="✅ Done", style=discord.ButtonStyle.success)
+    async def mark_set_complete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.completed_sets.add(self.current_set_index)
+        if self.current_set_index < len(self.client_plan_collection["sets"]) - 1:
+            self.current_set_index += 1
+        await interaction.response.send_message(f"✅ Set {self.current_set_index + 1} completed!", ephemeral=True)
+
+    @discord.ui.button(label="🔄 Repeat", style=discord.ButtonStyle.primary)
+    async def repeat_set(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(f"🔄 Repeating set {self.current_set_index + 1}.", ephemeral=True)
+
+    @discord.ui.button(label="🏁 Finish", style=discord.ButtonStyle.danger)
+    async def finish_workout(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("🏁 Workout session completed!", ephemeral=True)
+        self.stop()  # Stops the view
+
+    @discord.ui.button(label="⬅️ Prev", style=discord.ButtonStyle.secondary)
+    async def previous_set(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.current_set_index > 0:
+            self.current_set_index -= 1
+        await interaction.response.send_message(f"⬅️ Moved to set {self.current_set_index + 1}.", ephemeral=True)
+
+    @discord.ui.button(label="➡️ Next", style=discord.ButtonStyle.secondary)
+    async def next_set(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.current_set_index < len(self.client_plan_collection["sets"]) - 1:
+            self.current_set_index += 1
+        await interaction.response.send_message(f"➡️ Moved to set {self.current_set_index + 1}.", ephemeral=True)
+
     
 # ---------- ADJUST ----------
 # Adjust a plan from the "home" screen.
