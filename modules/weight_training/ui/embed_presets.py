@@ -32,18 +32,8 @@ def home_embed(data):
 
 # -----------------------------MOCK UP------------------------------ #
 def start_workout_session(data):
-    # Data remains the same
-    data = {
-        "exercise_name": "Tricep Pushdowns",
-        "sets": [
-            {"weight": 70, "reps": 12, "rpe": 6},
-            {"weight": 100, "reps": 8, "rpe": 7},
-            {"weight": 60, "reps": 14, "rpe": 8}
-        ],
-        "current_set": 1
-    }
-
     exercise_name = data.get("exercise_name", "Unknown Exercise")
+    
     sets = data.get("sets", [])
     now = datetime.datetime.utcnow()
     formatted_time = now.strftime("%b %d | %I:%M %p")
