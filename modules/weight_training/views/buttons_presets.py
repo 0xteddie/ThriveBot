@@ -42,45 +42,27 @@ class StartWorkOutView(discord.ui.View):
         self.client_plan_collection = client_plan_collection
         # Selector input box
         self.add_item(WorkOutPlan(self.client_plan_collection))
-        
-        # With each button click iterate and save the new value 
+
         self.button_click_count = 0
+
+        # Disable at zero
+        if self.client_plan_collection["button_click_count"] == 0:
+            self.prev.disabled = True
+    
+        if self.client_plan_collection["button_click_count"] == len(self.client_plan_collection["plans"]) - 1:
+             self.next.disabled = True
+        
 
     @discord.ui.button(label="Start", style=discord.ButtonStyle.green, emoji="🏋️", row=1)
     async def start_workout(self, interaction, button):
         from ui.render import render  # local import
-        # THIS DATA IS TEMP FOR NOW (TODO: CREATE A FUNCTION TO FETCH EXERCISE DATA BASED ON NUMBER)
-        data = {
-            "exercise_name": "Tricep Pushdowns",
-            "sets": [
-                {"weight": 70, "reps": 12, "rpe": 6},
-                {"weight": 100, "reps": 8, "rpe": 7},
-                {"weight": 60, "reps": 14, "rpe": 8},
-                {"weight": 60, "reps": 14, "rpe": 8},
-                {"weight": 60, "reps": 14, "rpe": 8}
-            ],
-            "current_set": 1
-        }
-        
-        # await render(interaction, "start_workout", self.client_plan_collection)
-        await render(interaction, "start_workout", data)
-    
-    @discord.ui.button(label="Prev", style=discord.ButtonStyle.blurple, emoji="◀", row=1)
-    async def prev(self, interaction, button):
-        from ui.render import render  # ✅ local import
-        
-        # Don't let the number go into negative
-        self.button_click_count = max(0, self.button_click_count - 1)
-        
-        self.client_plan_collection["button_click_count"] = self.button_click_count
-       
         await render(interaction, "start", self.client_plan_collection)
-
+    
     #  TRACK THE BUTTON CLICK AND STATUS
     @discord.ui.button(label="Next", style=discord.ButtonStyle.blurple, emoji="▶", row=1)
     async def next(self, interaction, button):
         from ui.render import render  # ✅ local import
-        
+
         total_workout_plans = len(self.client_plan_collection["plans"])
 
         self.button_click_count = min(total_workout_plans, self.button_click_count + 1)
@@ -88,7 +70,17 @@ class StartWorkOutView(discord.ui.View):
         self.client_plan_collection["button_click_count"] = self.button_click_count
 
         await render(interaction, "start", self.client_plan_collection)
-    
+
+    @discord.ui.button(label="Prev", style=discord.ButtonStyle.blurple, emoji="◀", row=1)
+    async def prev(self, interaction, button):
+        from ui.render import render  # ✅ local import
+        
+        self.button_click_count = max(0, self.button_click_count - 1)
+        
+        self.client_plan_collection["button_click_count"] = self.button_click_count
+       
+        await render(interaction, "start", self.client_plan_collection)
+
     @discord.ui.button(label="Home", style=discord.ButtonStyle.red, emoji="🔃", row=1)
     async def back(self, interaction, button):
         from ui.render import render  # ✅ local import
