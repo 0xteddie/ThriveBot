@@ -1,7 +1,7 @@
 
 
 # Check to see if the user has any existing plans
-async def fetch_client_data_plans():
+async def get_mock_client_plan_pages():
     user_plan_data = [
     {
         "name": "Push Day",
@@ -75,6 +75,20 @@ async def fetch_client_data_plans():
         ]
     }
     result["button_click_count"] = 0
-    #print(result["plans"])
-    
+
     return result
+
+async def get_mock_workout_plan():
+    data = {
+        "exercise_name": "Tricep Pushdowns",
+        "sets": [
+            {"weight": 70, "reps": 12, "rpe": 6},
+            {"weight": 100, "reps": 8, "rpe": 7},
+            {"weight": 60, "reps": 14, "rpe": 8},
+            {"weight": 60, "reps": 14, "rpe": 8},
+            {"weight": 60, "reps": 14, "rpe": 8}
+        ],
+        "current_set": 1
+    }
+
+    return data
