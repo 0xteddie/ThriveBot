@@ -2,7 +2,8 @@
 import discord
 from modals.interaction_menu import ExerciseSelect
 from modals.interaction_menu import WorkOutPlan
-from controllers.user_controller import fetch_client_data_plans
+from controllers.user_controller import get_mock_client_plan_pages
+from controllers.user_controller import get_mock_workout_plan
 
 # ---------- HOME ----------
 class HomeView(discord.ui.View):
@@ -15,7 +16,7 @@ class HomeView(discord.ui.View):
     async def start(self, interaction, button):
         from ui.render import render  # local import
         
-        self.client_plan_collection = await fetch_client_data_plans()
+        self.client_plan_collection = await get_mock_client_plan_pages()
 
         # Disable button if no data is found.
         if not self.client_plan_collection or not self.client_plan_collection.get("plans"):
@@ -53,10 +54,15 @@ class StartWorkOutView(discord.ui.View):
              self.next.disabled = True
         
 
+    # Use fake data here for now.
     @discord.ui.button(label="Start", style=discord.ButtonStyle.green, emoji="🏋️", row=1)
     async def start_workout(self, interaction, button):
-        from ui.render import render  # local import
-        await render(interaction, "start", self.client_plan_collection)
+        from ui.render import render
+
+        data = await get_mock_workout_plan()
+        
+        # await render(interaction, "start_workout", self.client_plan_collection)
+        await render(interaction, "start_workout", data)
     
     #  TRACK THE BUTTON CLICK AND STATUS
     @discord.ui.button(label="Next", style=discord.ButtonStyle.blurple, emoji="▶", row=1)
@@ -90,8 +96,11 @@ class StartWorkOutView(discord.ui.View):
 class WorkoutSessionView(discord.ui.View):
     def __init__(self, client_plan_collection):
         super().__init__(timeout=None)
+        
         self.data = client_plan_collection
+        
         self.client_plan_collection = client_plan_collection
+        
         self.completed_sets = set()
 
         # Disabling button logic
@@ -125,9 +134,12 @@ class WorkoutSessionView(discord.ui.View):
         await render(interaction, "start_workout", self.data)
     
     @discord.ui.button(label="Return", style=discord.ButtonStyle.primary, emoji="🔄")
-    # Repeat will duplicate existing workouts incase if the user did more sets/
-    async def repeat_set(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("Return button clicked.")
+    async def return_workout_view(self, interaction: discord.Interaction, button: discord.ui.Button):
+        from ui.render import render
+        
+        data = await fetch_client_data_plans()
+        
+        await render(interaction, "start", data)
 
 # ---------- ADJUST ----------
 # Adjust a plan from the "home" screen.
