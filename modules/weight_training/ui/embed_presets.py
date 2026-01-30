@@ -31,31 +31,39 @@ def home_embed(data):
     return embed
 
 # -----------------------------MOCK UP------------------------------ #
-def start_workout_session(data):
-    exercise_name = data.get("exercise_name", "Unknown Exercise")
+def start_workout_session(workout_data):
+    """
+    Create an embed for the current exercise in the workout
     
+    Args:
+        workout_data: Dict with 'exercises', 'current_exercise_index', and 'workout_name'
+    """
+    exercises = workout_data["exercises"]
+    current_index = workout_data["current_exercise_index"]
+    
+    # Get the current exercise
+    data = exercises[current_index]
+    
+    exercise_name = data.get("exercise_name", "Unknown Exercise")
     sets = data.get("sets", [])
     now = datetime.datetime.utcnow()
     formatted_time = now.strftime("%b %d | %I:%M %p")
 
     # Tighter widths for mobile (iPhone)
-    # Total width target: ~32 characters
     S_W = 3   # Set
     R_W = 4   # Reps
-    W_W = 9   # Weight (e.g., "100 lbs")
+    W_W = 9   # Weight
     E_W = 3   # RPE
-    GAP = " " # Single space gap
+    GAP = " "
 
-    # Build header: "  #   Reps  Weight    RPE"
     header = f"  {'#':<{S_W}}{GAP}{'Reps':<{R_W}}{GAP}{'Weight':<{W_W}}{GAP}{'RPE'}"
-    separator = "─" * 28 # Shorter separator
+    separator = "─" * 28
 
     rows = ""
     for i, s in enumerate(sets, start=1):
-        arrow = "→" if i == data["current_set"] else " "
+        arrow = "→" if i == data["current_set"] + 1 else " "
         w_str = f"{s['weight']}lbs"
         
-        # Row format: "→ 1   12    100lbs    6"
         rows += (
             f"{arrow} {i:<{S_W}}{GAP}"
             f"{s['reps']:<{R_W}}{GAP}"
@@ -63,13 +71,14 @@ def start_workout_session(data):
             f"{s['rpe']}\n"
         )
 
-    footer = f"{formatted_time}\nTotal Sets: {len(sets)}\nTip: Focus on full ROM"
+    exercise_progress = f"Exercise {current_index + 1}/{len(exercises)}"
+    
+    footer = f"{formatted_time}\n{exercise_progress}\nTotal Sets: {len(sets)}\nTip: Focus on full ROM"
     table = f"{header}\n{separator}\n{rows}{separator}\n{footer}"
     
-    # Using a code block is good, but keep it lean
     code_block = f"```\n{table}\n```"
 
-    import discord # Assuming discord.py/disnake/nextcord
+    import discord
     embed = discord.Embed(
         title=f"📝 {exercise_name}",
         description=code_block,
@@ -141,8 +150,41 @@ def workout_plans_list_embed(data):
 
 # ----------------------------------------------------------- #
 def adjust_embed(data):
-    return discord.Embed(title="✏️ ADJUST PLAN", description="Modify an existing plan")
+    # data is expected to be a list of exercise dicts
 
+    if not data:
+        return discord.Embed(
+            title="➕ NEW PLAN",
+            description="Create a new workout plan"
+        )
+
+    embed = discord.Embed(
+        title="Workout Plan",
+        color=0x3498DB
+    )
+
+    lines = []
+    lines.append("#  Exercise        Sets  Reps   RPE")
+    lines.append("────────────────────────────────")
+
+    for index, exercise in enumerate(data, start=1):
+        exercise_name = exercise["exercise_name"]
+        sets_count = exercise["sets_count"]
+        reps_count = exercise["reps_count"]
+        rpe = exercise.get("rpe", "-")
+
+        table_row = (
+            f"{index:<2} "
+            f"{exercise_name:<15} "
+            f"{sets_count:<5} "
+            f"{reps_count:<6} "
+            f"{rpe}"
+        )
+
+        lines.append(table_row)
+
+    embed.description = "```text\n" + "\n".join(lines) + "\n```"
+    return embed
 # ----------------------------------------------------------- #
 def new_plan_embed(data):
     # Should contain the data and values being returned by the user.
@@ -186,9 +228,10 @@ EMBEDS = {
     "start": workout_plans_list_embed,
     "start_workout": start_workout_session,
     "new_plan": new_plan_embed,
-    "edit_plan": new_plan_embed,
+    "edit_plan": adjust_embed,
     "exit_plan": new_plan_embed,
-    "adjust": adjust_embed,
+    "adjust": workout_plans_list_embed,
+
 }
 
 # BUTTONS.
