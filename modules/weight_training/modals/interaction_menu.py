@@ -1,12 +1,11 @@
 import discord
 
 class ExerciseSelect(discord.ui.Select):
-    # Eneumerate over the data here.
     def __init__(self, data, row=0):
         self.data = data
 
         options = []
-
+        
         for index, exercise in enumerate(data["data"]):
             option = discord.SelectOption(
                 label=exercise["exercise_name"],
@@ -43,7 +42,7 @@ class WorkOutPlan(discord.ui.Select):
             )
             
             options.append(option)
-
+        
         super().__init__(
             placeholder="Choose…",
             options=options,
@@ -53,10 +52,13 @@ class WorkOutPlan(discord.ui.Select):
         )
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-
-        # Parsing the interaction payload - sent by discord.
+        
         selected_index = int(self.values[0])
         
         current_plan_view = self.client_plan_collection["button_click_count"]
-        # This will have to also contain the buttun click count value
+        
+        # This will update the data to contain the new value
         chosen = self.client_plan_collection["plans"][current_plan_view][selected_index]
+            
+        self.client_plan_collection['picked_option'] = chosen['name']
+        
