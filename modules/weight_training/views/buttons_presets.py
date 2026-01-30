@@ -120,44 +120,44 @@ class WorkoutSessionView(discord.ui.View):
     def __init__(self, client_plan_collection):
         super().__init__(timeout=None)
         
-        self.data = client_plan_collection
-        
         self.client_plan_collection = client_plan_collection
         
         self.completed_sets = set()
 
-        # current_exercise_index = is used to indicate the current exercise the user is working on.
-        self.current_exercise_index_value = self.data['current_exercise_index']
+        # Track which exercise the user is currently working on
+        self.active_exercise_index = self.client_plan_collection['current_exercise_index']
     
-        total_sets = self.data['exercises'][self.current_exercise_index_value]['sets_count'] - 1
+        active_exercise = self.client_plan_collection['exercises'][self.active_exercise_index]
+        max_set_index = active_exercise['sets_count'] - 1
+        current_set_index = active_exercise['current_set']
         
-        # Disable previous button logic
-        self.previous_set.disabled = self.data['exercises'][self.current_exercise_index_value]['current_set'] == 0
+        # Disable previous button if on first set
+        self.previous_set.disabled = current_set_index == 0
         
-        # Disable next button logic
-        self.next_set.disabled = self.data['exercises'][self.current_exercise_index_value]['current_set'] == total_sets
+        # Disable next button if on last set
+        self.next_set.disabled = current_set_index == max_set_index
 
     # ----------------- BUTTONS -----------------
     @discord.ui.button(label="Prev", style=discord.ButtonStyle.success, emoji="⬅️")
     async def previous_set(self, interaction: discord.Interaction, button: discord.ui.Button):
         from ui.render import render
 
-        self.data['exercises'][self.current_exercise_index_value]['current_set'] = max(0, self.data['exercises'][self.current_exercise_index_value]['current_set'] - 1)
+        active_exercise = self.client_plan_collection['exercises'][self.active_exercise_index]
+        active_exercise['current_set'] = max(0, active_exercise['current_set'] - 1)
     
-        await render(interaction, "start_workout", self.data)
+        await render(interaction, "start_workout", self.client_plan_collection)
 
     @discord.ui.button(label="Next", style=discord.ButtonStyle.success, emoji="➡️")
-    # Pop up modal with each next button click?
     async def next_set(self, interaction: discord.Interaction, button: discord.ui.Button):
         from ui.render import render
         
-        display_sets = self.data['exercises'][self.current_exercise_index_value]['sets_count'] + 1
+        active_exercise = self.client_plan_collection['exercises'][self.active_exercise_index]
+        max_set_index = active_exercise['sets_count'] - 1
         
-        # Increment but clamp at display_sets count
-        self.data['exercises'][self.current_exercise_index_value]['current_set'] = min(self.data['exercises'][self.current_exercise_index_value]['current_set'] + 1, display_sets)
+        # Increment but clamp at max set index
+        active_exercise['current_set'] = min(active_exercise['current_set'] + 1, max_set_index)
 
-        # Always edit the message once
-        await render(interaction, "start_workout", self.data)
+        await render(interaction, "start_workout", self.client_plan_collection)
     
     @discord.ui.button(label="Return", style=discord.ButtonStyle.primary, emoji="🔄")
     async def return_workout_view(self, interaction: discord.Interaction, button: discord.ui.Button):
