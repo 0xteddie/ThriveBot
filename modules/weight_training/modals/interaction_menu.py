@@ -34,6 +34,7 @@ class WorkOutPlan(discord.ui.Select):
     
         options = []
         # Maximize at 5 total rows
+        
         current_plan_view = client_plan_collection["button_click_count"]
         for index, workout_plan_name in enumerate(client_plan_collection["plans"][current_plan_view]):
             option = discord.SelectOption(
