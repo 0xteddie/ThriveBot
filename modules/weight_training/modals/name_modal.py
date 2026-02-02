@@ -13,11 +13,18 @@ class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
         self.data = data
 
     async def on_submit(self, interaction: discord.Interaction):
-        # store input (perform validation)
-        self.data["plan_name"] = self.plan_name.value
-        self.data["data"] = []
+        plan_name = self.plan_name.value
+        
+        self.data["plan_name"] = plan_name
+        self.data["data"] = {
+            plan_name: {
+                "split": "",
+                "focus": "",
+                "exercises": []
+            }
+        }
 
-        # transition state
+        # Transition state
         from ui.render import render
         await render(interaction, "new_plan", self.data)
 
@@ -26,7 +33,7 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
     """
     Handles exercise detail submission.
 
-    Collects user-entered exercise data (name, sets, reps), appends it to the
+    Collects user-entered exercise data (name, sets, reps, RPE), appends it to the
     existing plan data structure, and triggers a UI re-render to display the
     updated plan.
     
@@ -39,26 +46,40 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
     )
     sets_count = discord.ui.TextInput(
         label="Total Sets: ",
+        placeholder="e.g. 4",
         max_length=3
     )
     reps_count = discord.ui.TextInput(
         label="Total Reps: ",
-        max_length=3
+        placeholder="e.g. 6-8 or AMRAP",
+        max_length=10
+    )
+    rpe = discord.ui.TextInput(
+        label="Target RPE (Rate of Perceived Exertion): ",
+        placeholder="e.g. 7 or 8",
+        max_length=2,
+        required=False
     )
 
     def __init__(self, data):
         super().__init__()
         self.data = data
-        self.details = {}
 
     async def on_submit(self, interaction: discord.Interaction):
-        # Fetch the data from the user input
-        self.details["exercise_name"] = self.exercise_name.value
-        self.details["sets_count"] = self.sets_count.value
-        self.details["reps_count"] = self.reps_count.value
+        # Changed the structure into a dict instead of a list.
+        plan_name = self.data["plan_name"]
         
-        # Add into list
-        self.data['data'].append(self.details)
+        # Create exercise object matching your data structure
+        exercise = {
+            "exercise_name": self.exercise_name.value,
+            "sets_count": int(self.sets_count.value),
+            "reps_count": self.reps_count.value,
+            "rpe": int(self.rpe.value) if self.rpe.value else 7,  # Default to 7 if not provided
+            "sets": [], 
+            "current_set": 0  
+        }
+        
+        self.data['data'][plan_name]['exercises'].append(exercise)
         self.data['index_selected_value'] = 0
         
         # Send the info back to the embed with the new data
