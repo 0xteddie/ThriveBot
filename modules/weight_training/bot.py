@@ -3,7 +3,10 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from ui.embed_presets import EMBEDS, VIEWS
+# from ui.embed_presets import EMBEDS, VIEWS
+
+from ui.new_presets import BUTTONS, EMBEDS
+
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -21,9 +24,9 @@ async def workout(interaction: discord.Interaction):
     data = {}
 
     embed = EMBEDS[state](data)
-    view = VIEWS[state](data)
+    buttons = BUTTONS[state](data)
 
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=buttons)
 
 @bot.event
 async def on_ready():
