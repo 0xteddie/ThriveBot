@@ -1,5 +1,55 @@
 import discord
 
+class ExerciseEdit(discord.ui.Select):
+    def __init__(self, data):
+        self.data = data
+        
+        # Get the plan name and exercises
+        plan_name = data["plan_name"]
+        exercises = data["data"][plan_name]["exercises"]
+        
+        # Build options from exercise names
+        options = []
+        for index, exercise in enumerate(exercises):
+            options.append(
+                discord.SelectOption(
+                    label=exercise["exercise_name"],
+                    value=str(index),  # Use index as the value to identify which exercise was selected
+                    description=f"{exercise['sets_count']} sets × {exercise['reps_count']} reps"
+                )
+            )
+        
+        # If no exercises, add a placeholder
+        if not options:
+            options.append(
+                discord.SelectOption(
+                    label="No exercises yet",
+                    value="none",
+                    description="Add an exercise first"
+                )
+            )
+        
+        super().__init__(
+            placeholder="Select an exercise to edit",
+            options=options,
+            min_values=1,
+            max_values=1
+        )
+    
+    async def callback(self, interaction: discord.Interaction):
+        # Get the selected exercise index
+        selected_index = int(self.values[0]) if self.values[0] != "none" else None
+        
+        if selected_index is not None:
+            # Store the selected index in data for later use
+            self.data['index_selected_value'] = selected_index
+            
+            from ui.render import render
+            await render(interaction, "edit_new_plan", self.data)
+        else:
+            await interaction.response.send_message("Please add an exercise first.", ephemeral=True)
+
+
 class ExerciseSelect(discord.ui.Select):
     def __init__(self, data, row=0):
         self.data = data
@@ -63,3 +113,4 @@ class WorkOutPlan(discord.ui.Select):
             
         self.client_plan_collection['picked_option'] = chosen['name']
         
+
