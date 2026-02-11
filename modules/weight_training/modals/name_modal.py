@@ -8,24 +8,32 @@ class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
         max_length=25
     )
 
+    focus = discord.ui.TextInput(
+        label="Focus",
+        placeholder="e.g. Hypertrophy",
+        max_length=25
+    )
+
+    split = discord.ui.TextInput(
+        label="Split",
+        placeholder="e.g. Upper/Lower Split",
+        max_length=30
+    )
+
     def __init__(self, data):
         super().__init__()
         self.data = data
 
     async def on_submit(self, interaction: discord.Interaction):
-        plan_name = self.plan_name.value
-        
-        self.data["plan_name"] = plan_name
-        self.data["data"] = {
-            plan_name: {
-                "split": "",
-                "focus": "",
-                "exercises": []
-            }
-        }
-
-        # Transition state
         from ui.render import render
+        from .workout_utils import create_plan
+
+        self.data["plan_data"] = create_plan(
+            self.plan_name.value,
+            self.split.value,
+            self.focus.value
+        )
+        
         await render(interaction, "new_plan", self.data)
 
 
@@ -54,6 +62,13 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         placeholder="e.g. 6-8 or AMRAP",
         max_length=10
     )
+
+    weight_count = discord.ui.TextInput(
+        label="Total Weight: ",
+        placeholder="e.g. 10-200 Lbs",
+        max_length=5
+    )
+
     rpe = discord.ui.TextInput(
         label="Target RPE (Rate of Perceived Exertion): ",
         placeholder="e.g. 7 or 8",
@@ -66,20 +81,19 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         self.data = data
 
     async def on_submit(self, interaction: discord.Interaction):
-        # Changed the structure into a dict instead of a list.
-        plan_name = self.data["plan_name"]
+        from .workout_utils import create_exercise
         
-        # Create exercise object matching your data structure
-        exercise = {
-            "exercise_name": self.exercise_name.value,
-            "sets_count": int(self.sets_count.value),
-            "reps_count": self.reps_count.value,
-            "rpe": int(self.rpe.value) if self.rpe.value else 7,  # Default to 7 if not provided
-            "sets": [], 
-            "current_set": 0  
-        }
+        plan_key = next(iter(self.data['plan_data']))
+    
+        exercise = create_exercise(
+            self.exercise_name.value,
+            self.sets_count.value,
+            self.reps_count.value,
+            self.weight_count.value,
+            self.rpe.value
+        )
         
-        self.data['data'][plan_name]['exercises'].append(exercise)
+        self.data['plan_data'][plan_key]['exercises'].append(exercise)
         self.data['index_selected_value'] = 0
         
         # Send the info back to the embed with the new data
@@ -109,26 +123,54 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
         max_length=3
     )
 
+    weight_count = discord.ui.TextInput(
+        label="Total Weight: ",
+        placeholder="e.g. 10-200 Lbs",
+        max_length=5
+    )
+
+    rpe_count = discord.ui.TextInput(
+        label="Target RPE (Rate of Perceived Exertion): ",
+        placeholder="e.g. 7 or 8",
+        max_length=2,
+        required=False
+    )
+
     def __init__(self, data: dict):
+        from .workout_utils import get_max_weight
         super().__init__()
         self.data = data
+
+        plan_key = next(iter(self.data['plan_data']))
+        edit_index = self.data["index_selected_value"]
+        exercise = self.data["plan_data"][plan_key]["exercises"][edit_index]
         
-        edit_index = data["index_selected_value"]
-        
-        exercise = data["data"][edit_index]
-    
         # Pre-fill inputs with selector value
         self.exercise_name.default = str(exercise.get("exercise_name", ""))
         self.sets_count.default = str(exercise.get("sets_count", ""))
         self.reps_count.default = str(exercise.get("reps_count", ""))
-
-    async def on_submit(self, interaction: discord.Interaction):
-        edit_index = self.data["index_selected_value"]
-        exercise = self.data["data"][edit_index]
-
-        exercise["exercise_name"] = self.exercise_name.value
-        exercise["sets_count"] = self.sets_count.value
-        exercise["reps_count"] = self.reps_count.value
+        self.weight_count.default = str(get_max_weight(exercise['sets']))
+        self.rpe_count.default = str(exercise.get("rpe"))
         
+    async def on_submit(self, interaction: discord.Interaction):
+        from .workout_utils import create_exercise
+        
+        edit_index = self.data["index_selected_value"]
+        plan_key = next(iter(self.data['plan_data']))
+
+        # Delete old item from list
+        del self.data["plan_data"][plan_key]["exercises"][edit_index]
+
+        exercise = create_exercise(
+            self.exercise_name.value,
+            self.sets_count.value,
+            self.reps_count.value,
+            self.weight_count.value,
+            self.rpe_count.value
+        )
+        
+        self.data['plan_data'][plan_key]['exercises'].append(exercise)
+        self.data['index_selected_value'] = 0
+
         from ui.render import render
-        await render(interaction, "edit_plan", self.data)
+        await render(interaction, "edit_new_plan", self.data)
