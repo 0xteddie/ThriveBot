@@ -4,9 +4,8 @@ class ExerciseEdit(discord.ui.Select):
     def __init__(self, data):
         self.data = data
         
-        # Get the plan name and exercises
-        plan_name = data["plan_name"]
-        exercises = data["data"][plan_name]["exercises"]
+        plan_name = list(data['plan_data'])[0]
+        exercises = data["plan_data"][plan_name]["exercises"]
         
         # Build options from exercise names
         options = []
@@ -37,17 +36,11 @@ class ExerciseEdit(discord.ui.Select):
         )
     
     async def callback(self, interaction: discord.Interaction):
-        # Get the selected exercise index
-        selected_index = int(self.values[0]) if self.values[0] != "none" else None
+        await interaction.response.defer()
+
+        selected_index = int(self.values[0])
         
-        if selected_index is not None:
-            # Store the selected index in data for later use
-            self.data['index_selected_value'] = selected_index
-            
-            from ui.render import render
-            await render(interaction, "edit_new_plan", self.data)
-        else:
-            await interaction.response.send_message("Please add an exercise first.", ephemeral=True)
+        self.data['selected_index'] = selected_index
 
 
 class ExerciseSelect(discord.ui.Select):
