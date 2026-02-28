@@ -6,6 +6,7 @@ from views.home_workout_view import HomeView
 from views.start_workout_view import StartWorkOutView
 from views.active_session_workout_view import WorkoutSessionView
 from views.exercise_detail_workout_view import NewPlanView, EditExerciseView, ExitPlanView
+from views.adjust_workout_view import StartAdjustView, AdjustView 
 
 # Emebeds
 from ui.active_embed import start_workout_session
@@ -24,7 +25,8 @@ EMBEDS = {
     "edit_new_plan": create_plan_embed, 
     "exit_plan": create_plan_embed,
 
-    # "adjust": workout_plans_list_embed,
+    "adjust": workout_plans_list_embed,
+    "AdjustView": create_plan_embed,
 }
 
 # BUTTONS.
@@ -37,6 +39,7 @@ BUTTONS = {
     "new_plan": NewPlanView,
     "edit_new_plan": EditExerciseView,
     "exit_plan": ExitPlanView,
-    
-    # "adjust": AdjustView,
+
+    "adjust": StartAdjustView,
+    "AdjustView": AdjustView
 }
