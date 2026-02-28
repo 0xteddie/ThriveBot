@@ -1,5 +1,8 @@
 # modals/name_modal.py
+from .workout_utils import create_exercise, validate_exercise_inputs, create_plan, get_max_weight
+from ui.render import render
 import discord
+import asyncio
 
 class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
     plan_name = discord.ui.TextInput(
@@ -25,9 +28,7 @@ class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
         self.data = data
 
     async def on_submit(self, interaction: discord.Interaction):
-        from ui.render import render
-        from .workout_utils import create_plan
-
+        # Store the newly created plan in data, used by the "edit_plan" functionality
         self.data["plan_data"] = create_plan(
             self.plan_name.value,
             self.split.value,
@@ -35,7 +36,6 @@ class NamePlanModal(discord.ui.Modal, title="Name Your Workout Plan"):
         )
         
         await render(interaction, "new_plan", self.data)
-
 
 class PlanDetails(discord.ui.Modal, title="Exercise details"):
     """
@@ -55,12 +55,12 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
     sets_count = discord.ui.TextInput(
         label="Total Sets: ",
         placeholder="e.g. 4",
-        max_length=3
+        max_length=5
     )
     reps_count = discord.ui.TextInput(
         label="Total Reps: ",
         placeholder="e.g. 6-8 or AMRAP",
-        max_length=10
+        max_length=5
     )
 
     weight_count = discord.ui.TextInput(
@@ -81,10 +81,20 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         self.data = data
 
     async def on_submit(self, interaction: discord.Interaction):
-        from .workout_utils import create_exercise
-        
         plan_key = next(iter(self.data['plan_data']))
-    
+        
+        error = validate_exercise_inputs(
+            self.sets_count.value,
+            self.reps_count.value,
+            self.weight_count.value
+        )
+
+        if error:
+            msg = await interaction.response.send_message(error)
+            await asyncio.sleep(2)
+            await interaction.delete_original_response()
+            return
+
         exercise = create_exercise(
             self.exercise_name.value,
             self.sets_count.value,
@@ -96,8 +106,6 @@ class PlanDetails(discord.ui.Modal, title="Exercise details"):
         self.data['plan_data'][plan_key]['exercises'].append(exercise)
         self.data['index_selected_value'] = 0
         
-        # Send the info back to the embed with the new data
-        from ui.render import render
         await render(interaction, "new_plan", self.data)
 
 class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
@@ -116,11 +124,11 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
     )
     sets_count = discord.ui.TextInput(
         label="Total Sets: ",
-        max_length=3
+        max_length=5
     )
     reps_count = discord.ui.TextInput(
         label="Total Reps: ",
-        max_length=3
+        max_length=5
     )
 
     weight_count = discord.ui.TextInput(
@@ -137,12 +145,13 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
     )
 
     def __init__(self, data: dict):
-        from .workout_utils import get_max_weight
         super().__init__()
         self.data = data
 
         plan_key = next(iter(self.data['plan_data']))
         edit_index = self.data["index_selected_value"]
+        
+        # Exercise here needs to change.
         exercise = self.data["plan_data"][plan_key]["exercises"][edit_index]
         
         # Pre-fill inputs with selector value
@@ -153,14 +162,24 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
         self.rpe_count.default = str(exercise.get("rpe"))
         
     async def on_submit(self, interaction: discord.Interaction):
-        from .workout_utils import create_exercise
-        
         edit_index = self.data["index_selected_value"]
         plan_key = next(iter(self.data['plan_data']))
 
-        # Delete old item from list
+        error = validate_exercise_inputs(
+            self.sets_count.value,
+            self.reps_count.value,
+            self.weight_count.value
+        )    
+        
+        if error:
+            msg = await interaction.response.send_message(error)
+            await asyncio.sleep(2)
+            await interaction.delete_original_response()
+            return
+        
+        # Delete old item from list.
         del self.data["plan_data"][plan_key]["exercises"][edit_index]
-
+        
         exercise = create_exercise(
             self.exercise_name.value,
             self.sets_count.value,
@@ -171,6 +190,5 @@ class EditExerciseDetails(discord.ui.Modal, title="Edit Exercise details"):
         
         self.data['plan_data'][plan_key]['exercises'].append(exercise)
         self.data['index_selected_value'] = 0
-
-        from ui.render import render
+        
         await render(interaction, "edit_new_plan", self.data)
