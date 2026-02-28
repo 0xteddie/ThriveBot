@@ -87,10 +87,6 @@ def get_max_weight(sets: list):
 def delete_exercise_item(exercise: list, index_selected_value: int):
     del exercise[index_selected_value]
 
-def parse_highest_number(value):
-    numbers = [int(n) for n in str(value).split("–") if n.strip().isdigit()]
-    return max(numbers) if numbers else int(value)
-
 def delete_workout_plan(workout_plan: list, index_selected_value: int):
     # 1. Grab workout name ✅
     # 2. Delete from database - In progress
