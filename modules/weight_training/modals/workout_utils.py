@@ -10,7 +10,7 @@ def create_plan(plan_name, split, focus):
             "exercises": []
         }
     }
-    
+
 def create_exercise(exercise_name, sets_count, reps_count, weight, rpe=7):
     """Create and validate an exercise with all its sets"""
     
@@ -92,3 +92,9 @@ def delete_workout_plan(workout_plan: list, index_selected_value: int):
     # 2. Delete from database - In progress
     del workout_plan[index_selected_value]
     
+
+def validate_exercises(workout_plan_exercise: list) -> str | None:
+    if not isinstance(workout_plan_exercise, list) or len(workout_plan_exercise) == 0:
+        return "🔄 Exercises cannot be empty."
+
+    return None
