@@ -1,9 +1,11 @@
-from modals.interaction_menu import ExerciseEdit
-from modals.workout_utils import delete_exercise_item
-from modals.name_modal import EditExerciseDetails
-from modals.name_modal import PlanDetails
-from ui.render import render
+import asyncio
 import discord
+
+from controllers.insert_data import insert_full_workout_plan
+from modals.interaction_menu import ExerciseEdit
+from modals.name_modal import EditExerciseDetails, PlanDetails
+from modals.workout_utils import delete_exercise_item, validate_exercises
+from ui.render import render
 
 # ---------- NEW PLAN ----------
 class NewPlanView(discord.ui.View):
@@ -35,7 +37,6 @@ class EditExerciseView(discord.ui.View):
         super().__init__(timeout=None)
         self.data = data
         
-        # Menu select
         self.add_item(ExerciseEdit(self.data))
 
     # Edit button here
@@ -66,16 +67,26 @@ class ExitPlanView(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=None)
         self.data = data
-    
-    # Add modal to select specific exercise to delete or keep.
+
     @discord.ui.button(label="Save", style=discord.ButtonStyle.success, emoji="💾", row=1)
     async def save_plan(self, interaction: discord.Interaction, button: discord.ui.Button):
-        from ui.render import render
-        print('Todo: Save the data to the back-end and return home')
+       
+        plan_key = next(iter(self.data['plan_data']))
+        exercise = self.data['plan_data'][plan_key]['exercises']
+
+        error = validate_exercises(workout_plan_exercise=exercise)
+        
+        if error:
+            await interaction.response.send_message(str(error), ephemeral=True)
+            await asyncio.sleep(4)
+            await interaction.delete_original_response()
+            return
+        
+        self.data = dict()
+        self.data['message_return'] = 'Plan saved!'
         await render(interaction, "home", self.data)
 
     @discord.ui.button(label="Discard", style=discord.ButtonStyle.danger, emoji="🗑️", row=1)
     async def discard_changes(self, interaction: discord.Interaction, button: discord.ui.Button):
-        from ui.render import render
         self.data = None
         await render(interaction, "home", self.data)
